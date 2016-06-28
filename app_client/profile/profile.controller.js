@@ -1,22 +1,25 @@
 (function() {
-  
-  angular
-    .module('meanApp')
-    .controller('profileCtrl', profileCtrl);
+	
+	angular
+		.module('meanApp')
+		.controller('profileCtrl', profileCtrl);
 
-  profileCtrl.$inject = ['$location', 'meanData'];
-  function profileCtrl($location, meanData) {
-    var vm = this;
+	profileCtrl.$inject = ['$routeParams', '$location', 'meanData', 'authentication'];
+	function profileCtrl($routeParams, $location, meanData, authentication) {
+		var vm = this;
 
-    vm.user = {};
+		vm.user = {};
 
-    meanData.getProfile()
-      .success(function(data) {
-        vm.user = data;
-      })
-      .error(function (e) {
-        console.log(e);
-      });
-  }
+		if (authentication.isLoggedIn() && authentication.currentUser()._id === $routeParams.id)
+			$location.path('/profile');
+
+		meanData.getProfile($routeParams.id)
+			.success(function(data) {
+				vm.user = data;
+			})
+			.error(function(e) {
+				console.log(e);
+			});
+	}
 
 })();
