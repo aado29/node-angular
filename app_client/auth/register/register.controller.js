@@ -19,7 +19,7 @@
       authentication
         .register(vm.credentials)
         .error(function(err){
-          alert(err);
+          console.log(err);
         })
         .then(function(){
           $location.path('profile');

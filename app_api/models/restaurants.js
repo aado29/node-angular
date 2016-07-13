@@ -1,27 +1,20 @@
 var mongoose = require( 'mongoose' );
-var crypto = require('crypto');
-var jwt = require('jsonwebtoken');
 
 var userSchema = new mongoose.Schema({
 	name: {
 		type: String,
 		required: true
 	},
+	principal_food: String,
 	email: {
 		type: String,
 		unique: true,
 		lowercase: true,
 		required: true
 	},
-	facebook: {
-		id: {
-			type: String,
-			default: null
-		}
-	},
 	date_joined: {
 		type: Date,
-		default: Date.now
+		default: Date.now()
 	},
 	hash: String,
 	salt: String
@@ -37,18 +30,4 @@ userSchema.methods.validPassword = function(password) {
 	return this.hash === hash;
 };
 
-userSchema.methods.generateJwt = function() {
-	var expiry = new Date();
-	expiry.setDate(expiry.getDate() + 7);
-
-	return jwt.sign({
-		_id: this._id,
-		name: this.name,
-		email: this.email,
-		salt: this.salt,
-		date_joined: this.date_joined,
-		exp: parseInt(expiry.getTime() / 1000),
-	}, "MY_SECRET"); // DO NOT KEEP YOUR SECRET IN THE CODE!
-};
-
-mongoose.model('User', userSchema);
+mongoose.model('Restaurants', userSchema);

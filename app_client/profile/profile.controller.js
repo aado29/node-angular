@@ -13,13 +13,17 @@
 		if (authentication.isLoggedIn() && authentication.currentUser()._id === $routeParams.id)
 			$location.path('/profile');
 
-		meanData.getProfile($routeParams.id)
-			.success(function(data) {
-				vm.user = data;
-			})
-			.error(function(e) {
-				console.log(e);
-			});
+		if (!authentication.isLoggedIn())
+			$location.path('/');
+		else 
+			meanData.getProfile($routeParams.id)
+				.success(function(data) {
+					vm.user = data;
+					console.log(data);
+				})
+				.error(function(e) {
+					console.log(e);
+				});
 	}
 
 })();

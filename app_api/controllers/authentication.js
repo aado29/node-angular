@@ -1,21 +1,15 @@
 var passport = require('passport');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var services = {};
 
-var sendJSONresponse = function(res, status, content) {
-	res.status(status);
-	res.json(content);
-};
-
-module.exports.register = function(req, res) {
-
-	// if(!req.body.name || !req.body.email || !req.body.password) {
-	//   sendJSONresponse(res, 400, {
-	//     "message": "All fields required"
-	//   });
-	//   return;
-	// }
-
+services.register = function(req, res) {
+	if(!req.body.name || !req.body.email || !req.body.password) {
+		res.status(400).json({
+			"message": "BadRequestError: All fields required"
+		});
+		return false;
+	}
 	var user = new User();
 
 	user.name = req.body.name;
@@ -24,46 +18,59 @@ module.exports.register = function(req, res) {
 	user.setPassword(req.body.password);
 
 	user.save(function(err) {
-		var token;
-		token = user.generateJwt();
-		res.status(200);
-		res.json({
-			"token" : token
-		});
+		if (err) {
+			res.status(400).json(err);
+			return false;
+		} else {
+			var token = user.generateJwt();
+			res.status(200).json({
+				"token" : token
+			});
+		}	
 	});
+}
 
-};
-
-module.exports.login = function(req, res) {
-
-	// if(!req.body.email || !req.body.password) {
-	// 	sendJSONresponse(res, 400, {
-	// 		"message": "All fields required"
-	// 	});
-	// 	return;
-	// }
+services.login = function(req, res) {
+	if(!req.body.email || !req.body.password) {
+		res.status(400).json({
+			"message": "BadRequestError: All fields required"
+		});
+		return false;
+	}
 
 	passport.authenticate('local', function(err, user, info) {
-		var token;
-
-		// If Passport throws/catches an error
 		if (err) {
-			res.status(404).json(err);
-			return;
+			res.status(400).json(err);
+			return false;
 		}
-
-		// If a user is found
 		if(user){
-			token = user.generateJwt();
-			res.status(200);
-			res.json({
+			var token = user.generateJwt();
+			res.status(200).json({
 				"token" : token
 			});
 		} else {
-			// If user is not found
 			res.status(401).json(info);
+			return false;
 		}
-
 	})(req, res);
+}
 
-};
+services.facebook = function(req, res) {
+	passport.authenticate('facebook', function(err, user, info) {
+		if (err) {
+			res.status(400).json(err);
+			return false;
+		}
+		if(user){
+			var token = user.generateJwt();
+			res.status(200).json({
+				"token" : token
+			});
+		} else {
+			res.status(401).json(info);
+			return false;
+		}
+	})(req, res);
+}
+
+module.exports = services;

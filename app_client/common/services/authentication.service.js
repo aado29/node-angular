@@ -46,7 +46,7 @@
 
 		var register = function(user) {
 			return $http
-				.post('/api/register', user)
+				.post('/api/auth/register', user)
 				.success(function(data) {
 					saveToken(data.token);
 				});
@@ -54,7 +54,7 @@
 
 		var login = function(user) {
 			return $http
-				.post('/api/login', user)
+				.post('/api/auth/local', user)
 				.success(function(data) {
 					saveToken(data.token);
 				});
