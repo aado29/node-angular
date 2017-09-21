@@ -14,13 +14,11 @@ export default class Controller extends controllerParent {
 
   static saveRules () {
     return {
-      org_hijo: {
+      permission: 'create',
+      description: {
         required: true
       },
-      descri: {
-        required: true
-      },
-      descorta: {
+      short_description: {
         required: true
       }
     }
@@ -28,13 +26,14 @@ export default class Controller extends controllerParent {
 
   static updateRules () {
     return {
-      org_hijo: {
+      permission: 'edit'
+      id: {
         required: true
       },
-      descri: {
+      description: {
         required: true
       },
-      descorta: {
+      short_description: {
         required: true
       }
     }
