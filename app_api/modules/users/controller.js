@@ -34,22 +34,32 @@ export default class UsersController {
   }
 
   all (req, res) {
-    let query = req.body
-    if (this.validations.hasPermission(req, res, 'super')) {
-      this.model.all(query, (err, users) => {
-        this.error.error.statusCode = 500
-        this.error.collection.errorMessage = 'Documents not founds.'
-        this.error.collection.statusCode = 404
-        if (this.errors.handleErrorDb(req, res, err, users, this.error)) {
-          res.set('Content-Type', 'application/json')
-          return res.status(200).send(users)
-        }
-      })
+    this.rules = {
+      permission: 'super'
     }
+    this.error.error.errorMessage = 'Bad request'
+    this.error.error.statusCode = 400
+
+    let query = req.body
+    req.body.authorization = req.headers.authorization || ''
+    if (!this.validations.areValids(req.body, this.rules)) {
+      return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
+    }
+
+    this.model.all(query, (err, users) => {
+      this.error.error.statusCode = 500
+      this.error.collection.errorMessage = 'Documents not founds.'
+      this.error.collection.statusCode = 404
+      if (this.errors.handleErrorDb(req, res, err, users, this.error)) {
+        res.set('Content-Type', 'application/json')
+        return res.status(200).send(users)
+      }
+    })
   }
 
   show (req, res) {
     this.rules = {
+      permission: 'show',
       id: {
         required: true
       }
@@ -57,21 +67,21 @@ export default class UsersController {
     this.error.error.errorMessage = 'Bad request'
     this.error.error.statusCode = 400
 
-    if (!this.validations.hasProperty(req.params, this.rules) || !this.validations.areValids(req.params, this.rules)) {
+    let query = req.params
+    req.params.authorization = req.headers.authorization
+    if (!this.validations.areValids(req.params, this.rules)) {
       return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
     }
-    let query = req.params
-    if (this.validations.hasPermission(req, res, 'show')) {
-      this.model.show(query, (err, document) => {
-        this.error.error.statusCode = 500
-        this.error.collection.errorMessage = 'Unprocessable Entity.'
-        this.error.collection.statusCode = 422
-        if (this.errors.handleErrorDb(req, res, err, document, this.error)) {
-          res.set('Content-Type', 'application/json')
-          return res.status(201).send(document)
-        }
-      })
-    }
+
+    this.model.show(query, (err, document) => {
+      this.error.error.statusCode = 500
+      this.error.collection.errorMessage = 'Unprocessable Entity.'
+      this.error.collection.statusCode = 422
+      if (this.errors.handleErrorDb(req, res, err, document, this.error)) {
+        res.set('Content-Type', 'application/json')
+        return res.status(201).send(document)
+      }
+    })
   }
 
   update (req, res) {
@@ -173,16 +183,9 @@ export default class UsersController {
       this.error.error.statusCode = 500
       this.error.collection.errorMessage = 'User not found'
       this.error.collection.statusCode = 404
-      if (err) {
-        console.log('Error Login', err)
-        res.status(this.error.error.statusCode).send({data: this.error.error.errorMessage})
-        return false
-      }
-      if (!user) {
-        console.log('Error user doesn´t found')
-        res.status(this.error.collection.statusCode).send({data: this.error.collection.errorMessage})
-        return false
-      } else {
+
+      if (this.errors.handleErrorDb(req, res, err, user, this.error)) {
+        res.set('Content-Type', 'application/json')
         return res.status(200).json({
           token: this.jsonWebToken.createToken(user)
         })
