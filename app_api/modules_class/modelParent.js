@@ -23,9 +23,10 @@ export default class modelParent {
   }
 
   show (query, callback) {
-    this.Scheme.find({
+    delete query._id
+    this.Scheme.findOne({
       _id: query.id
-    }).exec((err, documents) => callback(err, documents))
+    }).exec((err, document) => callback(err, document))
   }
 
   findOne (query, callback) {

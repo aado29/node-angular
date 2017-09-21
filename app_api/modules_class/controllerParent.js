@@ -27,27 +27,46 @@ export default class controllerParent {
 
   all (req, res) {
     this.model = new this.GlobalModel()
-    if (req.params.disponible !== undefined) {
-      req.body.disponible = req.params.disponible || ''
+    if (req.params.available !== undefined) {
+      req.body.available = req.params.available || ''
     }
     let query = req.body
-    this.model.all(query, (err, documentos) => {
+    this.model.all(query, (err, documents) => {
       this.error.error.statusCode = 500
       this.error.collection.errorMessage = 'Documennts not founds .'
       this.error.collection.statusCode = 404
-      if (this.errors.handleErrorDb(req, res, err, documentos, this.error)) {
+      if (this.errors.handleErrorDb(req, res, err, documents, this.error)) {
         res.set('Content-Type', 'application/json')
-        return res.status(200).send(documentos)
+        return res.status(200).send(documents)
       }
     })
   }
 
-  main (req, res) {
-    this.model = new this.GlobalModel()
-  }
-
   show (req, res) {
+    this.rules = {
+      id: {
+        required: true
+      }
+    }
     this.model = new this.GlobalModel()
+    this.error.error.errorMessage = 'Bad request'
+    this.error.error.statusCode = 400
+    req.body.id = req.params.id || ''
+
+    if (!this.validations.hasProperty(req.body, this.rules) || !this.validations.areValids(req.body, this.rules)) {
+      return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
+    }
+
+    let query = req.body
+    this.model.show(query, (err, document) => {
+      this.error.error.statusCode = 500
+      this.error.collection.errorMessage = 'Document not found.'
+      this.error.collection.statusCode = 404
+      if (this.errors.handleErrorDb(req, res, err, document, this.error)) {
+        res.set('Content-Type', 'application/json')
+        return res.status(200).send(document)
+      }
+    })
   }
 
   save (req, res) {
@@ -56,40 +75,36 @@ export default class controllerParent {
     this.error.error.errorMessage = 'Bad request'
     this.error.error.statusCode = 400
 
+    let query = req.body
+    req.body.authorization = req.headers.authorization || ''
     if (!this.validations.hasProperty(req.body, this.rules) || !this.validations.areValids(req.body, this.saveRules)) {
       return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
     }
 
-    let query = req.body
-    this.model.save(query, (err, documento) => {
+    this.model.save(query, (err, document) => {
       this.error.error.statusCode = 500
       this.error.collection.errorMessage = 'Unprocessable Entity.'
       this.error.collection.statusCode = 422
 
-      if (this.errors.handleErrorDb(req, res, err, documento, this.error)) {
+      if (this.errors.handleErrorDb(req, res, err, document, this.error)) {
         res.set('Content-Type', 'application/json')
-        return res.status(201).send(documento)
+        return res.status(201).send(document)
       }
     })
   }
 
   update (req, res) {
-    this.rules = {
-      id: {
-        required: true
-      }
-    }
+    this.rules = {}
     this.model = new this.GlobalModel()
-    req.body.id = req.params.id || ''
-
     this.error.error.errorMessage = 'Bad request'
     this.error.error.statusCode = 400
 
+    let query = req.body
+    req.body.id = req.params.id || ''
     if (!this.validations.hasProperty(req.body, this.rules) || !this.validations.areValids(req.body, this.updateRules)) {
       return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
     }
 
-    let query = req.body
     this.model.update(query, (err, document) => {
       this.error.error.statusCode = 500
       this.error.collection.errorMessage = 'Document not found.'
@@ -107,8 +122,8 @@ export default class controllerParent {
     this.async.waterfall([
       this.async.apply(function (env, callback) {
         req.body.id = req.params.id || ''
-        env.deleteRules = (env.deleteRules !== undefined) ? env.deleteRules : []
-        if (env.deleteRules.length) {
+        env.deleteRules = (env.deleteRules !== undefined) ? env.deleteRules : {}
+        if (Object.keys(env.deleteRules).length) {
           let deleteRule = env.deleteRules
           let model = env.modelFactory.createModel(deleteRule.collection)
           let query = {}
@@ -176,21 +191,21 @@ export default class controllerParent {
   }
 
   delete (req, res) {
-    this.model = new this.GlobalModel()
-    req.body.id = req.params.id || ''
     this.rules = {
       id: {
         required: true
       }
     }
+    this.model = new this.GlobalModel()
     this.error.error.errorMessage = 'Bad request'
     this.error.error.statusCode = 400
 
+    let query = req.body
+    req.body.id = req.params.id || ''
     if (!this.validations.hasProperty(req.body, this.rules) || !this.validations.areValids(req.body, this.rules)) {
       return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
     }
 
-    let query = req.body
     this.model.destroy(query, (err, document) => {
       this.error.error.statusCode = 500
       this.error.collection.errorMessage = 'Document not found.'
