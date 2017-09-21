@@ -10,7 +10,7 @@ export default class Routes {
         methods: ['all', 'get', 'post', 'put', 'delete'],
         handlers: [
           this.Authentication.ensureAuthenticated,
-          config.controller.main,
+          config.controller.show,
           config.controller.save,
           config.controller.update,
           config.controller.destroy
