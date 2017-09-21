@@ -96,18 +96,13 @@ export default class Validations {
     return (empty === _.size(fields) || empty === 0)
   }
 
-  hasPermission (req, res, permission) {
-    let token = req.headers.authorization.split(' ')[1]
-    let payload = jwt.decode(token, globalConfig.tokenSecret)
-    let privilege = payload.privilege
+  hasPermission (privilege, permission) {
     let permissions = this.privileges[privilege] ? this.privileges[privilege] : this.privileges[3]
     for (let i in permissions) {
       if (permissions[i] === permission) {
         return true
       }
     }
-    res.set('Content-Type', 'application/json')
-    res.status(403).send({data: 'Forbidden'})
     return false
   }
 
@@ -145,6 +140,16 @@ export default class Validations {
   }
 
   areValids (req, rules) {
+    if (!this.isEmpty(rules['permission'])) {
+      let token = req.authorization.split(' ')[1]
+      let payload = jwt.decode(token, globalConfig.tokenSecret)
+      let privilege = payload.privilege
+      if (!this.hasPermission(privilege, rules['permission'])) {
+        console.log('Error Permission: the user has no permission like ' + rules['permission'])
+        return false
+      }
+    }
+
     for (let field in rules) {
       if (!this.isEmpty(req[field])) {
         req[field] = sanitize(req[field])
