@@ -26,7 +26,7 @@ export default class Controller extends controllerParent {
 
   static updateRules () {
     return {
-      permission: 'edit'
+      permission: 'edit',
       id: {
         required: true
       },
