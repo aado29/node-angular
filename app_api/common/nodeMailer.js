@@ -1,4 +1,6 @@
 import nodemailer from 'nodemailer'
+import globalConfig from '../config/config'
+
 export default class NodeMailer {
   constructor (config) {
     this.cn = null
@@ -307,7 +309,7 @@ export default class NodeMailer {
     tt += '<td></td>'
     tt += '<td align="center" valign="center">'
 
-    tt += 'Su Password es: <b>' + user.password + '</b>'
+    tt += 'Presione <a href="' + globalConfig.rootURL + '/user/reset-password/' + user._id + '/' + user.salt + '">aqui</a> para recuperar su contraseña'
 
     tt += '</td>'
     tt += '<td></td>'
@@ -317,7 +319,7 @@ export default class NodeMailer {
     tt += '<td></td>'
     tt += '<td align="center" valign="center">'
 
-    tt += '<a href="http://162.252.58.45:7000" target="_blank">'
+    tt += '<a href="' + globalConfig.rootURL + ':7000" target="_blank">'
     tt += '<b>Entrar</b>'
     tt += '</a>'
 
