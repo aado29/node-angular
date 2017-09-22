@@ -1,6 +1,7 @@
 let config = {
 
   port: 7000,
+  rootURL: 'http://localhost',
   mongo: {
     dataBase: 'global',
     host: '127.0.0.1'

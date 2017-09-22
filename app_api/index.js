@@ -6,4 +6,4 @@ import ExpressServer from './expressServer'
 Mongodb.getInstance()
 let app = new ExpressServer()
 let server = http.createServer(app.expressServer)
-server.listen(config.port, () => console.log('Server running at http://localhost:' + config.port))
+server.listen(config.port, () => console.log('Server running at ' + config.rootURL + ':' + config.port))
