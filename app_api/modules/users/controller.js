@@ -150,7 +150,7 @@ export default class UsersController {
 
         if (this.errors.handleErrorDb(req, res, err, document, this.error)) {
           res.set('Content-Type', 'application/json')
-          return res.status(200).send()
+          return res.status(200).send({data: 'The user was successfully deleted!'})
         }
       })
     }
@@ -170,15 +170,11 @@ export default class UsersController {
     this.error.error.errorMessage = 'Bad request'
     this.error.error.statusCode = 400
 
-    if (!this.validations.hasProperty(req.body, this.rules) || !this.validations.areValids(req.body, this.rules)) {
+    if (!this.validations.areValids(req.body, this.rules)) {
       return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
     }
 
-    let query = {
-      email: req.body.email.toLowerCase(),
-      password: req.body.password,
-      active: true
-    }
+    let query = req.body
     this.model.login(query, (err, user) => {
       this.error.error.statusCode = 500
       this.error.collection.errorMessage = 'User not found'
@@ -193,6 +189,46 @@ export default class UsersController {
     })
   }
 
+  resetPass (req, res) {
+    this.rules = {
+      id: {
+        required: true
+      },
+      salt: {
+        required: true
+      },
+      password: {
+        required: true
+      }
+    }
+
+    req.body.id = req.params.id || ''
+    req.body.salt = req.params.salt || ''
+    this.error.error.errorMessage = 'Bad request'
+    this.error.error.statusCode = 400
+
+    if (!this.validations.areValids(req.body, this.rules)) {
+      return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
+    }
+
+    if (this.validations.owner(req, res)) {
+      let query = {
+        id: req.body.id,
+        hash: Crypto.pbkdf2Sync(req.body.password, req.body.salt, 1000, 64, 'sha1').toString('hex')
+      }
+      this.model.update(query, (err, user) => {
+        this.error.error.statusCode = 500
+        this.error.collection.errorMessage = 'User not found'
+        this.error.collection.statusCode = 404
+
+        if (this.errors.handleErrorDb(req, res, err, user, this.error)) {
+          res.set('Content-Type', 'application/json')
+          return res.status(201).send(user)
+        }
+      })
+    }
+  }
+
   recovery (req, res) {
     this.rules = {
       email: {
@@ -204,7 +240,7 @@ export default class UsersController {
     this.error.error.errorMessage = 'Bad request'
     this.error.error.statusCode = 400
 
-    if (!this.validations.hasProperty(req.body, this.rules) || !this.validations.areValids(req.body, this.rules)) {
+    if (!this.validations.areValids(req.body, this.rules)) {
       return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
     }
 
@@ -220,7 +256,7 @@ export default class UsersController {
       if (this.errors.handleErrorDb(req, res, err, user, this.error)) {
         this.NodeMailer.connect()
         this.NodeMailer.sendMailRecovery(user)
-        return res.status(200).json()
+        return res.status(200).json({data: 'The email was successfully sent!'})
       }
     })
   }
@@ -252,7 +288,7 @@ export default class UsersController {
     this.error.error.errorMessage = 'Bad request'
     this.error.error.statusCode = 400
 
-    if (!this.validations.hasProperty(req.body, this.rules) || !this.validations.areValids(req.body, this.rules)) {
+    if (!this.validations.areValids(req.body, this.rules)) {
       return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
     }
 
@@ -262,7 +298,7 @@ export default class UsersController {
       email: query.email
     }, (err, document) => {
       this.error.error.statusCode = 500
-      this.error.collection.errorMessage = 'Bad request.'
+      this.error.collection.errorMessage = 'Bad request: The email is used.'
       this.error.collection.statusCode = 400
 
       let has = !(document)
@@ -288,30 +324,29 @@ export default class UsersController {
   }
 
   activateAccount (req, res) {
-    this.rules = {}
+    this.rules = {
+      id: {
+        required: true
+      }
+    }
 
     this.error.error.errorMessage = 'Bad request'
     this.error.error.statusCode = 400
 
-    if (!this.validations.hasProperty(req.body, this.rules) || !this.validations.areValids(req.body, this.rules)) {
+    if (!this.validations.areValids(req.params, this.rules)) {
       return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
     }
 
     let query = {
       activate_code: req.params.id || ''
     }
-    if (!req.params.id.length) {
-      return res.status(this.error.error.statusCode).send({data: this.error.error.errorMessage})
-    }
+
     this.model.findOne(query, (err, user) => {
       this.error.error.statusCode = 500
       this.error.collection.errorMessage = 'User not found'
       this.error.collection.statusCode = 404
 
       if (this.errors.handleErrorDb(req, res, err, user, this.error)) {
-        if (user.check) {
-          return res.status(400).send({data: this.error.error.errorMessage})
-        }
         this.model.activate(user, (err, user) => {
           if (this.errors.handleErrorDb(req, res, err, user, this.error)) {
             res.set('Content-Type', 'application/json')

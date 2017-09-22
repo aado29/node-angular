@@ -11,7 +11,12 @@ export default class Routes {
         handlers: [config.controller.login]
       },
       {
-        url: '/user/reset-password',
+        url: '/user/reset-password/:id/:salt',
+        methods: ['post'],
+        handlers: [config.controller.resetPass]
+      },
+      {
+        url: '/user/recovery',
         methods: ['post'],
         handlers: [config.controller.recovery]
       },

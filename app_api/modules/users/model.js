@@ -25,12 +25,29 @@ export default class UsersModel {
   }
 
   login (query, callback) {
-    this.Scheme.findOne(query, (err, user) => callback(err, user))
+    this.Scheme.findOne({
+      email: query.email.toLowerCase(),
+      active: true
+    }, (err, user) => {
+      if (err == null && user == null) {
+        return callback(err, user)
+      }
+      if (err) {
+        return callback(err, null)
+      } else {
+        if (!user.validPassword(query.password)) {
+          err = 'Password doesn\'t match'
+          return callback(err, null)
+        }
+      }
+      return callback(null, user)
+    })
   }
 
   save (query, callback) {
-    let newItem = new this.Scheme(query)
-    newItem.save((err, document) => callback(err, document))
+    let newUser = new this.Scheme(query)
+    newUser.setPassword(query.password)
+    newUser.save((err, document) => callback(err, document))
   }
 
   update (query, callback) {
