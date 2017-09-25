@@ -1,7 +1,5 @@
 import sanitize from 'mongo-sanitize'
 import _ from 'underscore'
-import jwt from 'jwt-simple'
-import globalConfig from '../config/config'
 
 export default class Validations {
   constructor (config) {
@@ -119,12 +117,10 @@ export default class Validations {
   }
 
   owner (req, res) {
-    let token = req.headers.authorization.split(' ')[1]
-    let payload = jwt.decode(token, globalConfig.tokenSecret)
-    let privilege = payload.privilege
+    let privilege = req.user.privilege
     let permissions = this.privileges[privilege] ? this.privileges[privilege] : this.privileges[3]
     let isSuper = false
-    let isOwner = (payload.sub === req.body.id)
+    let isOwner = (req.user.sub === req.body.id)
     for (let i in permissions) {
       if (permissions[i] === 'super') {
         isSuper = true
@@ -141,9 +137,7 @@ export default class Validations {
 
   areValids (req, rules) {
     if (!this.isEmpty(rules['permission'])) {
-      let token = req.authorization.split(' ')[1]
-      let payload = jwt.decode(token, globalConfig.tokenSecret)
-      let privilege = payload.privilege
+      let privilege = req.user.privilege
       if (!this.hasPermission(privilege, rules['permission'])) {
         console.log('Error Permission: the user has no permission like ' + rules['permission'])
         return false

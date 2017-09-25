@@ -41,7 +41,7 @@ export default class UsersController {
     this.error.error.statusCode = 400
 
     let query = req.body
-    req.body.authorization = req.headers.authorization || ''
+    req.body.user = req.user || {}
     if (!this.validations.areValids(req.body, this.rules)) {
       return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
     }
@@ -68,7 +68,12 @@ export default class UsersController {
     this.error.error.statusCode = 400
 
     let query = req.params
-    req.params.authorization = req.headers.authorization
+    req.params.user = req.user || {}
+
+    if (req.params.id == null) {
+      req.params.id = req.user.sub
+    }
+
     if (!this.validations.areValids(req.params, this.rules)) {
       return this.errors.handleError(req, res, this.error.error.statusCode, { data: this.error.error.errorMessage })
     }
