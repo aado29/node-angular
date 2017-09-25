@@ -7,22 +7,19 @@ export default class Routes {
     this.routes = [
       {
         url: '/modules/note/:id?',
-        methods: ['all', 'get', 'post', 'put', 'delete'],
-        handlers: [
-          this.Authentication.ensureAuthenticated,
-          config.controller.show,
-          config.controller.save,
-          config.controller.update,
-          config.controller.destroy
-        ]
+        methods: {
+          all: [this.Authentication.ensureAuthenticated],
+          get: [config.controller.show],
+          post: [config.controller.save],
+          put: [config.controller.update],
+          delete: [config.controller.destroy]
+        }
       },
       {
-        url: '/modules/notes/:disponible?',
-        methods: ['all', 'get'],
-        handlers: [
-          this.Authentication.ensureAuthenticated,
-          config.controller.all
-        ]
+        url: '/modules/notes/:available?',
+        methods: {
+          get: [this.Authentication.ensureAuthenticated, config.controller.all]
+        }
       }
     ]
   }

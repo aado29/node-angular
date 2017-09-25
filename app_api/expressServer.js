@@ -16,18 +16,21 @@ export default class ExpressServer {
 
     for (let index in controllers) {
       let controller = new controllers[index]()
-      controller.routes.forEach((currentValue, index) => {
-        let route = controller.routes[index]
-        this.router(route.methods, route.url, route.handlers, controller)
+      controller.routes.forEach((currentRoute) => {
+        this.router(currentRoute.url, currentRoute.methods, controller)
       })
     }
+
     this.expressServer.use(this.routes)
   }
 
-  router (methods, urlController, handlers, controller) {
-    let url = this.routes.route(urlController)
-    methods.forEach((currentValue, index) => {
-      url[currentValue](handlers[index].bind(controller))
-    })
+  router (url, methods, controller) {
+    let route = this.routes.route(url)
+    for (let method in methods) {
+      let handlers = methods[method]
+      handlers.forEach((handler) => {
+        route[method](handler.bind(controller))
+      })
+    }
   }
 }

@@ -7,38 +7,48 @@ export default class Routes {
     this.routes = [
       {
         url: '/login',
-        methods: ['post'],
-        handlers: [config.controller.login]
+        methods: {
+          post: [config.controller.login]
+        }
       },
       {
         url: '/user/reset-password/:id/:salt',
-        methods: ['post'],
-        handlers: [config.controller.resetPass]
+        methods: {
+          post: [config.controller.resetPass]
+        }
       },
       {
         url: '/user/recovery',
-        methods: ['post'],
-        handlers: [config.controller.recovery]
+        methods: {
+          post: [config.controller.recovery]
+        }
       },
       {
         url: '/user/registry',
-        methods: ['post'],
-        handlers: [config.controller.registry]
+        methods: {
+          post: [config.controller.registry]
+        }
       },
       {
         url: '/user/activate-account/:id?',
-        methods: ['get'],
-        handlers: [config.controller.activateAccount]
+        methods: {
+          get: [config.controller.activateAccount]
+        }
       },
       {
         url: '/users',
-        methods: ['all', 'get'],
-        handlers: [this.Authentication.ensureAuthenticated, config.controller.all]
+        methods: {
+          get: [this.Authentication.ensureAuthenticated, config.controller.all]
+        }
       },
       {
         url: '/user/:id?',
-        methods: ['all', 'get', 'put', 'delete'],
-        handlers: [this.Authentication.ensureAuthenticated, config.controller.show, config.controller.update, config.controller.destroy]
+        methods: {
+          all: [this.Authentication.ensureAuthenticated],
+          get: [config.controller.show],
+          put: [config.controller.update],
+          delete: [config.controller.destroy]
+        }
       }
     ]
   }
