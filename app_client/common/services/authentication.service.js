@@ -35,18 +35,13 @@
 				var token = getToken();
 				var payload = token.split('.')[1];
 				payload = $window.atob(payload);
-				payload = JSON.parse(payload);
-				return {
-					_id: payload._id,
-					email: payload.email,
-					name: payload.name
-				};
+				return JSON.parse(payload);
 			}
 		};
 
 		var register = function(user) {
 			return $http
-				.post('/api/auth/register', user)
+				.post('auth/registry', user)
 				.success(function(data) {
 					saveToken(data.token);
 				});
@@ -54,7 +49,7 @@
 
 		var login = function(user) {
 			return $http
-				.post('/api/auth/local', user)
+				.post('auth/login', user)
 				.success(function(data) {
 					saveToken(data.token);
 				});

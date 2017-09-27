@@ -9,13 +9,13 @@
 
 		var getProfile = function(id) {
 			if (!id)
-				return $http.get('/api/user/current', {
+				return $http.get('api/user', {
 					headers: {
 						Authorization: 'Bearer '+ authentication.getToken()
 					}
 				});
 			else
-				return $http.get('/api/user/' + id);
+				return $http.get('api/user/' + id);
 			
 		};
 

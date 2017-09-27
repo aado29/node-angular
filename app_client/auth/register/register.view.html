@@ -5,11 +5,19 @@
   <div class="row">
     <div class="col-md-6">
       <h1>Register</h1>
-      <p class="lead">Already a member? Please <a href="login">log in</a> instead.</p>
+      <p class="lead">Already a member? Please <a href="/#/login">log in</a> instead.</p>
       <form ng-submit="vm.onSubmit()">
         <div class="form-group">
-          <label for="name">Full name</label>
-          <input type="text" class="form-control" id="name" placeholder="Enter your name" ng-model="vm.credentials.name">
+          <label for="name">Username</label>
+          <input type="text" class="form-control" id="Username" placeholder="Enter your username" ng-model="vm.credentials.username">
+        </div>
+        <div class="form-group">
+          <label for="name">First name</label>
+          <input type="text" class="form-control" id="firstName" placeholder="Enter your first name" ng-model="vm.credentials.firstName">
+        </div>
+        <div class="form-group">
+          <label for="name">Last name</label>
+          <input type="text" class="form-control" id="lastName" placeholder="Enter your last name" ng-model="vm.credentials.lastName">
         </div>
         <div class="form-group">
           <label for="email">Email address</label>

@@ -9,7 +9,9 @@
     var vm = this;
 
     vm.credentials = {
-      name : "",
+      username: "",
+      firstName : "",
+      lastName : "",
       email : "",
       password : ""
     };
