@@ -6,43 +6,43 @@ export default class Routes {
     this.Authentication = new Authentication()
     this.routes = [
       {
-        url: '/login',
+        url: '/auth/login',
         methods: {
           post: [config.controller.login]
         }
       },
       {
-        url: '/user/reset-password/:id/:salt',
-        methods: {
-          post: [config.controller.resetPass]
-        }
-      },
-      {
-        url: '/user/recovery',
-        methods: {
-          post: [config.controller.recovery]
-        }
-      },
-      {
-        url: '/user/registry',
+        url: '/auth/registry',
         methods: {
           post: [config.controller.registry]
         }
       },
       {
-        url: '/user/activate-account/:id?',
+        url: '/api/user/reset-password/:id/:salt',
+        methods: {
+          post: [config.controller.resetPass]
+        }
+      },
+      {
+        url: '/api/user/recovery',
+        methods: {
+          post: [config.controller.recovery]
+        }
+      },
+      {
+        url: '/api/user/activate-account/:id?',
         methods: {
           get: [config.controller.activateAccount]
         }
       },
       {
-        url: '/users',
+        url: '/api/users',
         methods: {
           get: [this.Authentication.ensureAuthenticated, config.controller.all]
         }
       },
       {
-        url: '/user/:id?',
+        url: '/api/user/:id?',
         methods: {
           all: [this.Authentication.ensureAuthenticated],
           get: [config.controller.show],

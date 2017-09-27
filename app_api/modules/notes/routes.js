@@ -6,7 +6,7 @@ export default class Routes {
     this.Authentication = new Authentication()
     this.routes = [
       {
-        url: '/modules/note/:id?',
+        url: '/api/note/:id?',
         methods: {
           all: [this.Authentication.ensureAuthenticated],
           get: [config.controller.show],
@@ -16,7 +16,7 @@ export default class Routes {
         }
       },
       {
-        url: '/modules/notes/:available?',
+        url: '/api/notes/:available?',
         methods: {
           get: [this.Authentication.ensureAuthenticated, config.controller.all]
         }
